@@ -1,0 +1,3 @@
+ENVDIR_FOO2=bar
+ENVDIR_FOO=overwriting
+ENVDIR_NEWLINE=foo\nbar
