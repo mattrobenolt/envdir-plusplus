@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os/exec"
 	"runtime"
 	"strings"
 	"syscall"
@@ -24,7 +25,7 @@ func init() {
 
 func main() {
 	*dir = strings.TrimRight(*dir, "/")
-	env := []string{}
+	env := syscall.Environ()
 	info, err := ioutil.ReadDir(*dir)
 	if err != nil {
 		if *verbose {
@@ -64,5 +65,10 @@ func main() {
 	if *verbose {
 		fmt.Printf("==> Running %s\n", flag.Args())
 	}
-	syscall.Exec(flag.Arg(0), flag.Args(), env)
+
+	bin, err := exec.LookPath(flag.Arg(0))
+	if err != nil {
+		panic(err)
+	}
+	panic(syscall.Exec(bin, flag.Args(), env))
 }
