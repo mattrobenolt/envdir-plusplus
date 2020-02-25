@@ -1,4 +1,4 @@
-# envdir-++
+# ENVDIR++(1)
 
 a good mashup of envdir + docker's env-file. Intended to be used as a docker entrypoint script like:
 
@@ -15,7 +15,7 @@ Add to your `Dockerfile`:
 ```Dockerfile
 FROM alpine
 
-ENV ENVDIR_VERSION v0.1.0
+ENV ENVDIR_VERSION v0.2.0
 RUN set -eux; \
     \
     apk add --no-cache --virtual .build-deps \
