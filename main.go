@@ -4,26 +4,35 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 	"syscall"
 )
 
+var CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 var (
-	dir     = flag.String("d", "/vault/secrets", "directory to read files from")
-	fail    = flag.Bool("f", false, "fail if missing directory")
-	verbose = flag.Bool("v", false, "verbose")
+	dir     = CommandLine.String("d", "/vault/secrets", "directory to read files from")
+	fail    = CommandLine.Bool("f", false, "fail if missing directory")
+	verbose = CommandLine.Bool("v", false, "verbose")
 )
 
 func init() {
 	runtime.GOMAXPROCS(1)
 	runtime.LockOSThread()
-
-	flag.Parse()
 }
 
 func main() {
+	var args []string
+	if len(os.Args) == 3 {
+		CommandLine.Parse(strings.Split(os.Args[1], " "))
+		args = append(CommandLine.Args(), os.Args[2])
+	} else {
+		CommandLine.Parse(os.Args[1:])
+		args = CommandLine.Args()
+	}
+
 	*dir = strings.TrimRight(*dir, "/")
 	env := syscall.Environ()
 	info, err := ioutil.ReadDir(*dir)
@@ -63,12 +72,12 @@ func main() {
 
 	}
 	if *verbose {
-		fmt.Printf("==> Running %s\n", flag.Args())
+		fmt.Printf("==> Running %s\n", args)
 	}
 
-	bin, err := exec.LookPath(flag.Arg(0))
+	bin, err := exec.LookPath(args[0])
 	if err != nil {
 		panic(err)
 	}
-	panic(syscall.Exec(bin, flag.Args(), env))
+	panic(syscall.Exec(bin, args, env))
 }
