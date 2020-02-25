@@ -15,7 +15,7 @@ Add to your `Dockerfile`:
 ```Dockerfile
 FROM alpine
 
-ENV ENVDIR_VERSION v0.3.0
+ENV ENVDIR_VERSION v0.4.0
 RUN set -eux; \
     \
     apk add --no-cache --virtual .build-deps \
