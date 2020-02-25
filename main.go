@@ -25,12 +25,23 @@ func init() {
 
 func main() {
 	var args []string
-	if len(os.Args) == 3 {
+	if len(os.Args) >= 3 && strings.ContainsRune(os.Args[1], ' ') {
+		// On Linux, arguments in a hashbang are not handled normally
+		// They are passed as ["envdir++", "-f -v -d foo /bin/sh", "script.sh"]
+		// This means the arguments for the command are all in `argv[1]`, so we
+		// need to parse this explicitly, then the script is `argv[2]`.
+		// Within Docker, it then appends `CMD` as additional arguments.
+		// The only reliable way I think to determine which mode we're in is to
+		// check for a space in `argv[1]`.
 		CommandLine.Parse(strings.Split(os.Args[1], " "))
-		args = append(CommandLine.Args(), os.Args[2])
+		args = append(CommandLine.Args(), os.Args[2:]...)
 	} else {
 		CommandLine.Parse(os.Args[1:])
 		args = CommandLine.Args()
+	}
+
+	if len(args) == 0 {
+		args = []string{"/bin/sh"}
 	}
 
 	*dir = strings.TrimRight(*dir, "/")
